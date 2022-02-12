@@ -1,16 +1,11 @@
-
-// ignore_for_file: prefer_const_constructors, deprecated_member_use, sized_box_for_whitespace
-
 import 'dart:async';
 import 'package:flutter/material.dart';
-// import 'widgets/Menu.dart';
-// import 'widgets/MyTitle.dart';
-// import 'widgets/Grid.dart';
-
+import 'package:puzzle/layout/responsive_layout_builder.dart';
+import 'widgets/Menu.dart';
+import 'widgets/MyTitle.dart';
+import 'widgets/Grid.dart';
 
 class Board extends StatefulWidget {
-  const Board({ Key? key }) : super(key: key);
-
   @override
   _BoardState createState() => _BoardState();
 }
@@ -19,10 +14,10 @@ class _BoardState extends State<Board> {
   var numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
   int move = 0;
 
-  static const duration =  Duration(seconds: 1);
+  static const duration = const Duration(seconds: 1);
   int secondsPassed = 0;
   bool isActive = false;
-  Timer ?timer;
+  Timer? timer;
 
   @override
   void initState() {
@@ -33,7 +28,6 @@ class _BoardState extends State<Board> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    // ignore: prefer_conditional_assignment, unnecessary_null_comparison
     if (timer == null) {
       timer = Timer.periodic(duration, (Timer t) {
         startTime();
@@ -43,16 +37,98 @@ class _BoardState extends State<Board> {
     return SafeArea(
       child: Container(
         height: size.height,
-        color: Colors.blue,
-        // child: Column(
-          // children: <Widget>[
-            // MyTitle(size),
-            // Grid(numbers, size, clickGrid),
-            // Menu(reset, move, secondsPassed, size),
-          // ],
-        // ),
+        decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [
+          Color(0xff893a9f),
+          Color(0xff7c2ae8),
+        ])),
+        child: Stack(
+          children: [
+            Positioned(
+                right: 10,
+                bottom: 10,
+                child: GestureDetector(
+                  onDoubleTap: checkWin,
+                  child: Image.asset(
+                    "assets/images/LogoWhite.png",
+                    width: size.width / 4,
+                  ),
+                )),
+            Game(size),
+          ],
+        ),
       ),
     );
+  }
+
+  Column Game(Size size) {
+    if (Responsiveness.isLargeScreen(context)) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Flutter Puzzle",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: size.height * 0.1,
+                        color: Colors.white,
+                        decoration: TextDecoration.none),
+                  ),
+                  Image.asset(
+                    "assets/images/Dashatars.png",
+                    width: 400,
+                  )
+                ],
+              ),
+              Grid(numbers, size, clickGrid),
+              Menu(
+                reset: reset,
+                move: move,
+                secondsPassed: secondsPassed,
+                size: size,
+                isHorizontal: false,
+              ),
+            ],
+          ),
+        ],
+      );
+    } else if (Responsiveness.isMediumScreen(context)) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          MyTitle(size),
+          Grid(numbers, size, clickGrid),
+          Menu(
+            reset: reset,
+            move: move,
+            secondsPassed: secondsPassed,
+            size: size,
+            isHorizontal: true,
+          ),
+        ],
+      );
+    } else {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          MyTitle(size),
+          Grid(numbers, size, clickGrid),
+          Menu(
+            reset: reset,
+            move: move,
+            secondsPassed: secondsPassed,
+            size: size,
+            isHorizontal: true,
+          ),
+        ],
+      );
+    }
   }
 
   void clickGrid(index) {
